@@ -1,0 +1,89 @@
+{% include "header.html" %}
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8 mx-auto">
+
+          <article class="card mb-4">
+            <header class="card-header text-center">
+              <h1 class="card-title">Join Today</h1>
+            </header>
+            <div class="card-body">
+
+              <p><strong>Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus.</strong></p>
+
+              <p>Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim.</p>
+
+              <form action="{{ url_for('register') }}" method="post" novalidate>
+                  {{ form.csrf_token }}
+                  <legend class="border-bottom mb-4">Register now</legend>
+                  <div class="form-group">
+                      {{ form.username.label(class_="form-label") }}
+                      {% if form.username.errors %}
+                          {{ form.username(class_="form-control is-invalid") }}
+                          <div class="invalid-feedback">
+                            {% for error in form.username.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                          </div>
+                      {% else %}
+                          {{ form.username(class_="form-control") }}
+                      {% endif %}
+                  </div>
+                  <div class="form-group">
+                      {{ form.email.label(class_="form-label mt-3") }}
+                      {% if form.email.errors %}
+                          {{ form.email(class_="form-control is-invalid") }}
+                          <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                          </div>
+                      {% else %}
+                          {{ form.email(class_="form-control") }}
+                      {% endif %}
+                  </div>
+                  <div class="form-group">
+                      {{ form.password.label(class_="form-label mt-3") }}
+                      {% if form.password.errors %}
+                          {{ form.password(class_="form-control is-invalid") }}
+                          <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                          </div>
+                      {% else %}
+                          {{ form.password(class_="form-control") }}
+                      {% endif %}
+                  </div>
+                  <div class="form-group">
+                      {{ form.confirm_password.label(class_="form-label mt-3") }}
+                      {% if form.confirm_password.errors %}
+                          {{ form.confirm_password(class_="form-control is-invalid") }}
+                          <div class="invalid-feedback">
+                            {% for error in form.confirm_password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                          </div>
+                      {% else %}
+                          {{ form.confirm_password(class_="form-control") }}
+                      {% endif %}
+                  </div>
+                  <div class="form-group">
+                      {{ form.submit(class_="btn btn-success mt-3") }}
+                  </div>
+                  <div class="pt-3">
+                      <small class="text-muted">
+                          Already have an account? <a class="ms-2 text-primary" style="text-decoration: none" href="#">Log in</a>
+                      </small>
+                  </div>
+              </form>
+
+            </div>
+          </article><!-- /.card -->
+
+        </div>
+      </div>
+    </div>
+
+{% include "footer.html" %}
