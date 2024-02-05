@@ -1,6 +1,8 @@
-from blogapp import app
-from flask import render_template
+from blogapp import app, db
+from flask import render_template, redirect, url_for, flash
+from werkzeug.security import generate_password_hash, check_password_hash
 from blogapp.forms import RegistrationForm, LoginForm
+from blogapp.models import User
 
 posts = [
     {
@@ -56,7 +58,16 @@ def about():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        print("Registration Successful")
+        hashed_password = generate_password_hash(form.password.data)
+        new_user = User(
+            username=form.username.data,
+            email=form.email.data,
+            password=hashed_password
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Your account has been created! You can now login', 'success')
+        return redirect(url_for('login'))
     return render_template("register.html", form=form, title="Register")
 
 
@@ -64,7 +75,11 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        print("Login Successful")
+        user = db.session.execute(db.select(User).where(User.email == form.email.data)).scalar()
+        if user and check_password_hash(user.password, form.password.data):
+            return redirect(url_for('home'))
+        else:
+            flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template("login.html", form=form, title="Login")
 
 

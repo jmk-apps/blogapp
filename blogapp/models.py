@@ -11,10 +11,10 @@ class User(db.Model):
     username: Mapped[str] = mapped_column(String(30), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
     profile_pic: Mapped[str] = mapped_column(String(50), nullable=False, default="default_profile_pic.jpg")
-    password: Mapped[str] = mapped_column(String(200), nullable=False)
+    password: Mapped[str] = mapped_column(String(250), nullable=False)
 
     # Relationship with posts
-    posts = Mapped[list["Post"]] = relationship(back_populates="author")
+    posts: Mapped[list["Post"]] = relationship(back_populates="author")
 
 
 class Post(db.Model):
