@@ -1,6 +1,6 @@
 from blogapp import app
 from flask import render_template
-from blogapp.forms import RegistrationForm
+from blogapp.forms import RegistrationForm, LoginForm
 
 posts = [
     {
@@ -58,6 +58,14 @@ def register():
     if form.validate_on_submit():
         print("Registration Successful")
     return render_template("register.html", form=form, title="Register")
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        print("Login Successful")
+    return render_template("login.html", form=form, title="Login")
 
 
 @app.route('/contact')
