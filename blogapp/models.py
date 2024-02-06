@@ -1,10 +1,16 @@
-from blogapp import db
+from blogapp import db, login_manager
 from sqlalchemy import Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, timezone
+from flask_login import UserMixin
 
 
-class User(db.Model):
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.execute(db.select(User).where(User.id == user_id)).scalar()
+
+
+class User(db.Model, UserMixin):
     __tablename__ = 'user'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -13,7 +19,7 @@ class User(db.Model):
     profile_pic: Mapped[str] = mapped_column(String(50), nullable=False, default="default_profile_pic.jpg")
     password: Mapped[str] = mapped_column(String(250), nullable=False)
 
-    # Relationship with posts
+    # Relationship with post
     posts: Mapped[list["Post"]] = relationship(back_populates="author")
 
 
@@ -30,4 +36,3 @@ class Post(db.Model):
     # Relationship with user
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
     author: Mapped["User"] = relationship(back_populates="posts")
-

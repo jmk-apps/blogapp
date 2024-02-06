@@ -1,8 +1,9 @@
 from blogapp import app, db
 from flask import render_template, redirect, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-from blogapp.forms import RegistrationForm, LoginForm
+from blogapp.forms import RegistrationForm, LoginForm, UpdateAccountForm
 from blogapp.models import User
+from flask_login import login_user, logout_user, login_required
 
 posts = [
     {
@@ -54,6 +55,12 @@ def about():
     return render_template("about.html", title="About")
 
 
+@app.route('/account', methods=["GET", "POST"])
+def account():
+    form = UpdateAccountForm()
+    return render_template("account.html", form=form, title="Account")
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
@@ -77,10 +84,18 @@ def login():
     if form.validate_on_submit():
         user = db.session.execute(db.select(User).where(User.email == form.email.data)).scalar()
         if user and check_password_hash(user.password, form.password.data):
+            login_user(user, remember=form.remember.data)
             return redirect(url_for('home'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template("login.html", form=form, title="Login")
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
 
 
 @app.route('/contact')
