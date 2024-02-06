@@ -1,9 +1,9 @@
 from blogapp import app, db
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, request
 from werkzeug.security import generate_password_hash, check_password_hash
 from blogapp.forms import RegistrationForm, LoginForm, UpdateAccountForm
 from blogapp.models import User
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 
 posts = [
     {
@@ -58,7 +58,19 @@ def about():
 @app.route('/account', methods=["GET", "POST"])
 def account():
     form = UpdateAccountForm()
-    return render_template("account.html", form=form, title="Account")
+    if form.validate_on_submit():
+        if form.profile_pic.data:
+            current_user.profile_pic = form.profile_pic.data
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        db.session.commit()
+        flash("Your account has been updated!", "success")
+        return redirect(url_for('account'))
+    elif request.method == "GET":
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+    profile_picture = url_for('static', filename=f'profile_pics/{current_user.profile_pic}')
+    return render_template("account.html", form=form, image_file=profile_picture, title="Account")
 
 
 @app.route('/register', methods=['GET', 'POST'])

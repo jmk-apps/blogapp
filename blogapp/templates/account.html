@@ -7,12 +7,14 @@
           <article class="card mb-4">
             <div class="card-body">
                 <div class="text-center">
-                    <img class="img-thumbnail rounded" height="250px" width="250px" src="{{ url_for('static', filename='profile_pics/default_profile_pic.jpg') }}" alt="">
+                    <img class="img-thumbnail rounded" height="250px" width="250px" src="{{ image_file }}" alt="">
                     <h2 class="text-lowercase py-2">{{ current_user.username }}</h2>
                     <p>{{ current_user.email }}</p>
                 </div>
 
-              <form action="{{ url_for('account') }}" method="post" novalidate>
+                {% include "flash_message.html" %}
+
+              <form action="{{ url_for('account') }}" method="post" enctype="multipart/form-data" novalidate>
                   {{ form.csrf_token }}
                   <legend class="border-bottom mb-4">Account Details</legend>
                   <div>
@@ -55,7 +57,7 @@
                       {% endif %}
                   </div>
                   <div>
-                      {{ form.submit(class_="btn btn-primary mt-4") }}
+                      {{ form.submit(class_="btn btn-info mt-4") }}
                   </div>
               </form>
 
