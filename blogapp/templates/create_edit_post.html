@@ -1,0 +1,97 @@
+{% include "header.html" %}
+
+<div class="container">
+      <div class="row">
+        <div class="col-md-8 mx-auto">
+
+          <article class="card mb-4">
+            <header class="card-header text-center">
+              <h1 class="card-title">What's on your mind?</h1>
+            </header>
+            <div class="card-body">
+
+                <img src="" alt="" class="card-img">
+
+              <form action="{{ url_for('new_post') }}" method="post" novalidate>
+                  {{ form.csrf_token }}
+                  <legend class="border-bottom mb-4">{{ legend }}</legend>
+                  <div class="form-group">
+                      {{ form.title.label(class_="form-label") }}
+                      {% if form.title.errors %}
+                          {{ form.title(class_="form-control is-invalid") }}
+                          <div class="invalid-feedback">
+                            {% for error in form.title.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                          </div>
+                      {% else %}
+                          {{ form.title(class_="form-control") }}
+                      {% endif %}
+                  </div>
+                  <div class="form-group">
+                      {{ form.subtitle.label(class_="form-label mt-3") }}
+                      {% if form.subtitle.errors %}
+                          {{ form.subtitle(class_="form-control is-invalid") }}
+                          <div class="invalid-feedback">
+                            {% for error in form.subtitle.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                          </div>
+                      {% else %}
+                          {{ form.subtitle(class_="form-control") }}
+                      {% endif %}
+                  </div>
+                  <div class="form-group">
+                      {{ form.category.label(class_="form-label mt-3") }}
+                      {% if form.category.errors %}
+                          {{ form.category(class_="form-control is-invalid") }}
+                          <div class="invalid-feedback">
+                            {% for error in form.category.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                          </div>
+                      {% else %}
+                          {{ form.category(class_="form-control") }}
+                      {% endif %}
+                  </div>
+                  <div class="form-group">
+                      {{ form.content.label(class_="form-label mt-3") }}
+                      {% if form.content.errors %}
+                          {{ form.content(class_="form-control is-invalid") }}
+                          <div class="invalid-feedback">
+                            {% for error in form.content.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                          </div>
+                      {% else %}
+                          {{ form.content(class_="form-control") }}
+                      {% endif %}
+
+                  </div>
+                  <div class="form-group">
+                      {{ form.post_pic.label(class_="form-label mt-3") }}
+                      {% if form.post_pic.errors %}
+                          {{ form.post_pic(class_="form-control is-invalid") }}
+                          <div class="invalid-feedback">
+                            {% for error in form.category.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                          </div>
+                      {% else %}
+                          {{ form.post_pic(class_="form-control") }}
+                      {% endif %}
+                  </div>
+                  <div class="form-group">
+                      {{ form.submit(class_="btn btn-primary mt-3") }}
+                  </div>
+              </form>
+
+            </div>
+          </article><!-- /.card -->
+
+        </div>
+      </div>
+    </div>
+    {{ ckeditor.load() }}
+    {{ ckeditor.config(name='content') }}
+{% include "footer.html" %}

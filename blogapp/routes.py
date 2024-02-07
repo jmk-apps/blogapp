@@ -1,7 +1,7 @@
 from blogapp import app, db
 from flask import render_template, redirect, url_for, flash, request, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
-from blogapp.forms import RegistrationForm, LoginForm, UpdateAccountForm
+from blogapp.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
 from blogapp.models import User
 from flask_login import login_user, logout_user, login_required, current_user
 import os
@@ -80,6 +80,7 @@ def delete_picture(picture_name):
 
 
 @app.route('/account', methods=["GET", "POST"])
+@login_required
 def account():
     form = UpdateAccountForm()
     if form.validate_on_submit():
@@ -136,6 +137,16 @@ def logout():
     return redirect(url_for('home'))
 
 
+@app.route("/create-edit-post", methods=['GET', 'POST'])
+def new_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        print("You have successfully created a new post")
+    return render_template("create_edit_post.html", form=form, title="New Post", legend="New Post")
+
+
 @app.route('/contact')
 def contact():
     return render_template("contact.html", title="Contact")
+
+

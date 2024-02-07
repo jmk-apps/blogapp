@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager
+from flask_ckeditor import CKEditor
 import os
 
 
@@ -19,6 +20,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DB_URI')
 db.init_app(app)
 login_manager.init_app(app)
+ckeditor = CKEditor(app)
 from blogapp.models import User, Post
 from blogapp import routes
 

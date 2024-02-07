@@ -3,8 +3,18 @@ from blogapp import db
 from blogapp.models import User
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, EmailField, PasswordField, SubmitField, BooleanField
+from flask_ckeditor import CKEditorField
+from wtforms import StringField, EmailField, PasswordField, SubmitField, BooleanField, SelectField
 from wtforms.validators import InputRequired, Length, Email, EqualTo, ValidationError
+
+CATEGORY_CHOICES = [
+    'Please select a category',
+    'Travel',
+    'Technology',
+    'Books',
+    'Activities',
+    'Work'
+]
 
 
 class RegistrationForm(FlaskForm):
@@ -51,3 +61,16 @@ class UpdateAccountForm(FlaskForm):
             user = db.session.execute(db.select(User).where(User.email == email.data)).scalar()
             if user:
                 raise ValidationError('That email is taken. Please choose a different one.')
+
+
+class PostForm(FlaskForm):
+    title = StringField('Title', validators=[InputRequired()])
+    subtitle = StringField('Subtitle', validators=[InputRequired()])
+    category = SelectField('Category', choices=CATEGORY_CHOICES, validators=[InputRequired()])
+    content = CKEditorField('Content', validators=[InputRequired()])
+    post_pic = FileField("Post Picture", validators=[FileAllowed(['jpg', 'png'])])
+    submit = SubmitField('Post')
+
+    def validate_category(self, category):
+        if category.data == 'Please select a category':
+            raise ValidationError('Please select a category')
