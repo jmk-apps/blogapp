@@ -9,10 +9,11 @@
               <h1 class="card-title">What's on your mind?</h1>
             </header>
             <div class="card-body">
+                {% if legend == "Update Post" %}
+                    <img src="{{ image_file }}" alt="" class="card-img mb-2">
+                {% endif %}
 
-                <img src="" alt="" class="card-img">
-
-              <form action="{{ url_for('new_post') }}" method="post" enctype="multipart/form-data" novalidate>
+              <form action="" method="post" enctype="multipart/form-data" novalidate>
                   {{ form.csrf_token }}
                   <legend class="border-bottom mb-4">{{ legend }}</legend>
                   <div class="form-group">

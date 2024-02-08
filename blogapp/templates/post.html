@@ -20,6 +20,12 @@
 
               <h4 class="fw-bold">{{ post.subtitle }}</h4>
               <p>{{ post.content | safe }}</p>
+                <div class="row">
+                    <div class="d-flex mt-1 justify-content-end">
+                        <a class="btn btn-sm btn-primary" href="{{ url_for('update_post', post_id=post.id) }}">Update</a>
+                        <button class="btn btn-sm btn-danger ms-2">Delete</button>
+                    </div>
+                </div>
 
               <hr />
 

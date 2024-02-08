@@ -197,6 +197,32 @@ def show_post(post_id):
     return render_template("post.html", post=post, title="Post")
 
 
+@app.route('/post/<int:post_id>/update', methods=['GET', 'POST'])
+def update_post(post_id):
+    post = db.get_or_404(Post, post_id)
+    form = PostForm()
+    if form.validate_on_submit():
+        if form.post_pic.data:
+            delete_picture(post.post_pic, "post")
+            picture_name = save_picture(form.post_pic.data, "post")
+            post.post_pic = picture_name
+        post.title = form.title.data
+        post.subtitle = form.subtitle.data
+        post.category = form.category.data
+        post.content = form.content.data
+        db.session.commit()
+        flash('Your post has been updated!', "success")
+        return redirect(url_for('show_post', post_id=post.id))
+    elif request.method == 'GET':
+        form.title.data = post.title
+        form.subtitle.data = post.subtitle
+        form.category.data = post.category
+        form.content.data = post.content
+    post_picture = url_for('static', filename=f'post_pics/{post.post_pic}')
+
+    return render_template("create_edit_post.html", form=form, title="Update Post", image_file=post_picture, legend="Update Post")
+
+
 @app.route('/contact')
 def contact():
     return render_template("contact.html", title="Contact")
