@@ -4,11 +4,12 @@
 
       <div class="row">
         <div class="col-md-9">
+            {% include "flash_message.html" %}
             {% for post in posts %}
                 <article class="card mb-4">
                     <header class="card-header">
                       <div class="card-meta">
-                          <a class="fw-bold" href="#">{{ post.username }}</a>
+                          <a class="fw-bold" href="#">{{ post.author.username }}</a>
                         <a href="#"><time class="timeago" datetime="2021-09-26 20:00">{{ post.date_posted }}</time></a> in <a href="page-category.html">{{ post.category }}</a>
                       </div>
                       <a href="post-image.html">
@@ -16,7 +17,7 @@
                       </a>
                     </header>
                     <a href="post-image.html">
-                      <img class="card-img" src="{{ post.image_file }}" alt="" />
+                      <img class="card-img" src="{{ url_for('static', filename='post_pics/' + post.post_pic) }}" alt="" />
                     </a>
                     <div class="card-body">
                       <p class="card-text">{{ post.subtitle }} </p>

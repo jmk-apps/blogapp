@@ -2,13 +2,14 @@ from blogapp import app, db
 from flask import render_template, redirect, url_for, flash, request, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from blogapp.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
-from blogapp.models import User
+from blogapp.models import User, Post
 from flask_login import login_user, logout_user, login_required, current_user
 import os
 import secrets
 from PIL import Image, ImageOps
+from html_sanitizer import Sanitizer
 
-posts = [
+posts_dummy = [
     {
         "username": "James Dean",
         "title": "How can we sing about love?",
@@ -47,9 +48,28 @@ posts = [
     },
 ]
 
+# Allowed Tags for the html-sanitizer
+Tags = {
+    "a", "h1", "h2", "h3", "strong", "em", "p", "ul", "ol",
+    "li", "br", "sub", "sup", "hr", "img",
+}
+
+# Set up the sanitizer to allow the tags specified in the "Tags" variable.
+# It also will allow img
+# tags as img tags are not allowed by default
+sanitizer = Sanitizer({
+    "tags": Tags,
+    "attributes": {
+        "a": ("href", "name", "target", "title", "id", "rel"),
+        "img": {"alt", "src"}
+    },
+    "empty": {"hr", "a", "br", "img"},
+})
+
 
 @app.route('/')
 def home():
+    posts = db.session.execute(db.select(Post)).scalars().all()
     return render_template("index.html", posts=posts)
 
 
@@ -58,24 +78,34 @@ def about():
     return render_template("about.html", title="About")
 
 
-def save_picture(form_picture):
+def save_picture(form_picture, type):
     # Get the filename and path
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
-    picture_path = os.path.join(current_app.root_path, 'static/profile_pics', picture_fn)
+    if type == "profile":
+        picture_path = os.path.join(current_app.root_path, 'static/profile_pics', picture_fn)
+    else:
+        picture_path = os.path.join(current_app.root_path, 'static/post_pics', picture_fn)
 
     # Resize and save the picture
-    output_size = (250, 250)
+    if type == "profile":
+        output_size = (250, 250)
+    else:
+        output_size = (1000, 800)
+
     with Image.open(form_picture) as img:
         ImageOps.cover(img, output_size).save(picture_path)
 
     return picture_fn
 
 
-def delete_picture(picture_name):
-    if picture_name != "default_profile_pic.jpg":
+def delete_picture(picture_name, type):
+    if picture_name != "default_profile_pic.jpg" and type == "profile":
         picture_path = os.path.join(current_app.root_path, 'static/profile_pics', picture_name)
+        os.remove(picture_path)
+    elif picture_name != "default_post_pic.jpg" and type == "post":
+        picture_path = os.path.join(current_app.root_path, 'static/post_pics', picture_name)
         os.remove(picture_path)
 
 
@@ -85,9 +115,9 @@ def account():
     form = UpdateAccountForm()
     if form.validate_on_submit():
         if form.profile_pic.data:
-            delete_picture(current_user.profile_pic)
-            picture_file = save_picture(form.profile_pic.data)
-            current_user.profile_pic = picture_file
+            delete_picture(current_user.profile_pic, "profile")
+            picture_name = save_picture(form.profile_pic.data, "profile")
+            current_user.profile_pic = picture_name
         current_user.username = form.username.data
         current_user.email = form.email.data
         db.session.commit()
@@ -138,15 +168,29 @@ def logout():
 
 
 @app.route("/create-edit-post", methods=['GET', 'POST'])
+@login_required
 def new_post():
     form = PostForm()
     if form.validate_on_submit():
-        print("You have successfully created a new post")
+        clean_content = sanitizer.sanitize(form.content.data)
+        post_new = Post(
+            title=form.title.data,
+            subtitle=form.subtitle.data,
+            category=form.category.data,
+            content=clean_content,
+            author=current_user
+        )
+        if form.post_pic.data:
+            picture_name = save_picture(form.post_pic.data, "post")
+            post_new.post_pic = picture_name
+        db.session.add(post_new)
+        db.session.commit()
+        flash('Your post has been created!', "success")
+        return redirect(url_for('home'))
+
     return render_template("create_edit_post.html", form=form, title="New Post", legend="New Post")
 
 
 @app.route('/contact')
 def contact():
     return render_template("contact.html", title="Contact")
-
-
