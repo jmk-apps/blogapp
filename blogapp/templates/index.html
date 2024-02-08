@@ -10,19 +10,19 @@
                     <header class="card-header">
                       <div class="card-meta">
                           <a class="fw-bold" href="#">{{ post.author.username }}</a>
-                        <a href="#"><time class="timeago" datetime="2021-09-26 20:00">{{ post.date_posted }}</time></a> in <a href="page-category.html">{{ post.category }}</a>
+                        <small class="fs-6">{{ post.date_posted.strftime("%d-%b-%Y") }} in <a href="page-category.html">{{ post.category }}</a></small>
                       </div>
-                      <a href="post-image.html">
+                      <a href="{{ url_for('show_post', post_id=post.id) }}">
                         <h4 class="card-title">{{ post.title }}</h4>
                       </a>
                     </header>
-                    <a href="post-image.html">
+                    <a href="{{ url_for('show_post', post_id=post.id) }}">
                       <img class="card-img" src="{{ url_for('static', filename='post_pics/' + post.post_pic) }}" alt="" />
                     </a>
                     <div class="card-body">
                       <p class="card-text">{{ post.subtitle }} </p>
                     </div>
-                      <button class="btn btn-light btn-sm">Read more..</button>
+                      <a href="{{ url_for('show_post', post_id=post.id) }}" class="btn btn-light btn-sm">Read more..</a>
                 </article><!-- /.card -->
             {% endfor %}
         </div>

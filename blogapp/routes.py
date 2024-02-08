@@ -167,7 +167,7 @@ def logout():
     return redirect(url_for('home'))
 
 
-@app.route("/create-edit-post", methods=['GET', 'POST'])
+@app.route("/post/new", methods=['GET', 'POST'])
 @login_required
 def new_post():
     form = PostForm()
@@ -189,6 +189,12 @@ def new_post():
         return redirect(url_for('home'))
 
     return render_template("create_edit_post.html", form=form, title="New Post", legend="New Post")
+
+
+@app.route('/post/<int:post_id>')
+def show_post(post_id):
+    post = db.get_or_404(Post, post_id)
+    return render_template("post.html", post=post, title="Post")
 
 
 @app.route('/contact')
