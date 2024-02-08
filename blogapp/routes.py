@@ -220,7 +220,18 @@ def update_post(post_id):
         form.content.data = post.content
     post_picture = url_for('static', filename=f'post_pics/{post.post_pic}')
 
-    return render_template("create_edit_post.html", form=form, title="Update Post", image_file=post_picture, legend="Update Post")
+    return render_template("create_edit_post.html", form=form, title="Update Post", image_file=post_picture,
+                           legend="Update Post")
+
+
+@app.route('/post/<int:post_id>/delete', methods=['POST'])
+def delete_post(post_id):
+    post = db.get_or_404(Post, post_id)
+    delete_picture(post.post_pic, "post")
+    db.session.delete(post)
+    db.session.commit()
+    flash('Your post has been deleted!', "success")
+    return redirect(url_for('home'))
 
 
 @app.route('/contact')
