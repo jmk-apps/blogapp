@@ -22,6 +22,9 @@ class User(db.Model, UserMixin):
     # Relationship with post
     posts: Mapped[list["Post"]] = relationship(back_populates="author")
 
+    # Relationship with comments
+    comments: Mapped[list["Comment"]] = relationship(back_populates="comment_author")
+
 
 class Post(db.Model):
     __tablename__ = 'post'
@@ -37,3 +40,22 @@ class Post(db.Model):
     # Relationship with user
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
     author: Mapped["User"] = relationship(back_populates="posts")
+
+    # Relationship with comment
+    comments: Mapped[list["Comment"]] = relationship(back_populates="parent_post")
+
+
+class Comment(db.Model):
+    __tablename__ = 'comment'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    date_posted: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now(timezone.utc))
+
+    # Relationship with user
+    author_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    comment_author: Mapped["User"] = relationship(back_populates="comments")
+
+    # Relationship with post
+    post_id: Mapped[int] = mapped_column(ForeignKey("post.id"), nullable=False)
+    parent_post: Mapped["Post"] = relationship(back_populates="comments")

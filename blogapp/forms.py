@@ -1,4 +1,6 @@
 from flask_login import current_user
+from wtforms.fields.simple import TextAreaField
+
 from blogapp import db
 from blogapp.models import User
 from flask_wtf import FlaskForm
@@ -74,3 +76,9 @@ class PostForm(FlaskForm):
     def validate_category(self, category):
         if category.data == 'Please select a category':
             raise ValidationError('Please select a category')
+
+
+class CommentForm(FlaskForm):
+    content = TextAreaField('Write a comment', validators=[InputRequired()])
+    submit = SubmitField('Publish')
+

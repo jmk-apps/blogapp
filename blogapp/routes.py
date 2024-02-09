@@ -1,8 +1,8 @@
 from blogapp import app, db
 from flask import render_template, redirect, url_for, flash, request, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
-from blogapp.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
-from blogapp.models import User, Post
+from blogapp.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, CommentForm
+from blogapp.models import User, Post, Comment
 from flask_login import login_user, logout_user, login_required, current_user
 import os
 import secrets
@@ -191,10 +191,28 @@ def new_post():
     return render_template("create_edit_post.html", form=form, title="New Post", legend="New Post")
 
 
-@app.route('/post/<int:post_id>')
+@app.route('/post/<int:post_id>', methods=["GET", "POST"])
 def show_post(post_id):
     post = db.get_or_404(Post, post_id)
-    return render_template("post.html", post=post, title="Post")
+    form = CommentForm()
+    print("code reached here")
+
+    if form.validate_on_submit():
+        print(form.content.data)
+        print(current_user.is_authenticated)
+        if not current_user.is_authenticated:
+            flash('You must login or register to comment', "danger")
+            return redirect(url_for('login'))
+        new_comment = Comment(
+            content=form.content.data,
+            comment_author=current_user,
+            parent_post=post
+        )
+        db.session.add(new_comment)
+        db.session.commit()
+        return redirect(url_for('show_post', post_id=post.id))
+    num_comments = len(post.comments)
+    return render_template("post.html", post=post, form=form, num_comments=num_comments, title="Post")
 
 
 @app.route('/post/<int:post_id>/update', methods=['GET', 'POST'])
