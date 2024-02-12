@@ -2,51 +2,14 @@ from blogapp import app, db
 from flask import render_template, redirect, url_for, flash, request, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from blogapp.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, CommentForm
-from blogapp.models import User, Post, Comment
+from blogapp.models import User, Post, Comment, Reply
 from flask_login import login_user, logout_user, login_required, current_user
 import os
 import secrets
 from PIL import Image, ImageOps
 from html_sanitizer import Sanitizer
+from datetime import datetime, timezone
 
-posts_dummy = [
-    {
-        "username": "James Dean",
-        "title": "How can we sing about love?",
-        "subtitle": "Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum.",
-        "content": "lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor",
-        "category": "Journey",
-        "image_file": "static/img/articles/8.jpg",
-        "date_posted": "26 october 2021"
-    },
-    {
-        "username": "James Dean",
-        "title": "Oh, I guess they have the blues",
-        "subtitle": "Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. ",
-        "content": "lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor",
-        "category": "Lifestyle",
-        "image_file": "static/img/articles/22.jpg",
-        "date_posted": "3 october 2021"
-    },
-    {
-        "username": "James Dean",
-        "title": "How can we, how can we sing about ourselves?",
-        "subtitle": "Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. ",
-        "content": "lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor",
-        "category": "Work",
-        "image_file": "static/img/articles/19.jpg",
-        "date_posted": "16 july 2021"
-    },
-    {
-        "username": "James Dean",
-        "title": "The king is made of paper",
-        "subtitle": "Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. ",
-        "content": "lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor",
-        "category": "Lifestyle",
-        "image_file": "static/img/articles/3.jpg",
-        "date_posted": "15 october 2021"
-    },
-]
 
 # Allowed Tags for the html-sanitizer
 Tags = {
@@ -178,7 +141,8 @@ def new_post():
             subtitle=form.subtitle.data,
             category=form.category.data,
             content=clean_content,
-            author=current_user
+            author=current_user,
+            date_posted=datetime.now(timezone.utc)
         )
         if form.post_pic.data:
             picture_name = save_picture(form.post_pic.data, "post")
@@ -195,24 +159,48 @@ def new_post():
 def show_post(post_id):
     post = db.get_or_404(Post, post_id)
     form = CommentForm()
-    print("code reached here")
+    # The CommentForm is used for the reply form because their structure the same.
+    reply_form = CommentForm()
 
     if form.validate_on_submit():
-        print(form.content.data)
-        print(current_user.is_authenticated)
         if not current_user.is_authenticated:
             flash('You must login or register to comment', "danger")
             return redirect(url_for('login'))
         new_comment = Comment(
             content=form.content.data,
             comment_author=current_user,
-            parent_post=post
+            parent_post=post,
+            date_posted=datetime.now(timezone.utc)
         )
         db.session.add(new_comment)
         db.session.commit()
         return redirect(url_for('show_post', post_id=post.id))
     num_comments = len(post.comments)
-    return render_template("post.html", post=post, form=form, num_comments=num_comments, title="Post")
+    return render_template("post.html", post=post, form=form, reply_form=reply_form, num_comments=num_comments, title="Post")
+
+
+@app.route('/reply/<int:comment_id>', methods=["POST"])
+def new_reply(comment_id):
+    comment = db.session.execute(db.select(Comment).where(Comment.id == comment_id)).scalar()
+    # The CommentForm is used for the reply form because their structure the same.
+    reply_form = CommentForm()
+    # Note: In the post.html file, in the reply form the novalidate attribute has been removed to prevent
+    # the user from submitting an empty reply.This is used
+    # because the validation error won't be shown when the user
+    # is redirected to the post.html file if validation fails.
+    if reply_form.validate_on_submit():
+        reply = Reply(
+            content=reply_form.content.data,
+            date_posted=datetime.now(timezone.utc),
+            reply_author=current_user,
+            comment_post=comment
+        )
+        db.session.add(reply)
+        db.session.commit()
+        return redirect(url_for('show_post', post_id=comment.post_id))
+    return redirect(url_for('show_post', post_id=comment.post_id))
+
+
 
 
 @app.route('/post/<int:post_id>/update', methods=['GET', 'POST'])
@@ -255,3 +243,5 @@ def delete_post(post_id):
 @app.route('/contact')
 def contact():
     return render_template("contact.html", title="Contact")
+
+

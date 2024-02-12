@@ -25,6 +25,9 @@ class User(db.Model, UserMixin):
     # Relationship with comments
     comments: Mapped[list["Comment"]] = relationship(back_populates="comment_author")
 
+    # Relationship with replies
+    replies: Mapped[list["Reply"]] = relationship(back_populates="reply_author")
+
 
 class Post(db.Model):
     __tablename__ = 'post'
@@ -35,7 +38,7 @@ class Post(db.Model):
     category: Mapped[str] = mapped_column(String(50), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     post_pic: Mapped[str] = mapped_column(String(50), nullable=False, default="default_post_pic.jpg")
-    date_posted: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now(timezone.utc))
+    date_posted: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     # Relationship with user
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
@@ -50,7 +53,7 @@ class Comment(db.Model):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    date_posted: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now(timezone.utc))
+    date_posted: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     # Relationship with user
     author_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
@@ -59,3 +62,22 @@ class Comment(db.Model):
     # Relationship with post
     post_id: Mapped[int] = mapped_column(ForeignKey("post.id"), nullable=False)
     parent_post: Mapped["Post"] = relationship(back_populates="comments")
+
+    # Relationship with reply
+    replies: Mapped[list["Reply"]] = relationship(back_populates="comment_post")
+
+
+class Reply(db.Model):
+    __tablename__ = 'reply'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    date_posted: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+    # Relationship with user
+    author_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    reply_author: Mapped["User"] = relationship(back_populates="replies")
+
+    # Relationship with comment
+    comment_id: Mapped[int] = mapped_column(ForeignKey("comment.id"), nullable=False)
+    comment_post: Mapped["Comment"] = relationship(back_populates="replies")
