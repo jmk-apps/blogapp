@@ -1,7 +1,8 @@
-from blogapp import app, db
+from blogapp import app, db, mail
 from flask import render_template, redirect, url_for, flash, request, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
-from blogapp.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, CommentForm
+from blogapp.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, CommentForm, RequestResetForm, \
+    ResetPasswordForm
 from blogapp.models import User, Post, Comment, Reply
 from flask_login import login_user, logout_user, login_required, current_user
 import os
@@ -9,7 +10,7 @@ import secrets
 from PIL import Image, ImageOps
 from html_sanitizer import Sanitizer
 from datetime import datetime, timezone
-
+from flask_mail import Message
 
 # Allowed Tags for the html-sanitizer
 Tags = {
@@ -177,7 +178,8 @@ def show_post(post_id):
         db.session.commit()
         return redirect(url_for('show_post', post_id=post.id))
     num_comments = len(post.comments)
-    return render_template("post.html", post=post, form=form, reply_form=reply_form, num_comments=num_comments, title="Post")
+    return render_template("post.html", post=post, form=form, reply_form=reply_form, num_comments=num_comments,
+                           title="Post")
 
 
 @app.route('/reply/<int:comment_id>', methods=["POST"])
@@ -200,8 +202,6 @@ def new_reply(comment_id):
         db.session.commit()
         return redirect(url_for('show_post', post_id=comment.post_id))
     return redirect(url_for('show_post', post_id=comment.post_id))
-
-
 
 
 @app.route('/post/<int:post_id>/update', methods=['GET', 'POST'])
@@ -241,8 +241,44 @@ def delete_post(post_id):
     return redirect(url_for('home'))
 
 
+def send_reset_email(user):
+    token = user.get_reset_token()
+    msg = Message('Password Reset Request', sender="kagandajohn762@gmail.com", recipients=[user.email])
+    msg.body = f'''To reset your password, visit the following link:
+{url_for('reset_token', token=token, _external=True)}
+
+If you did not make this request then simply ignore this email and no changes will be made.
+'''
+    mail.send(msg)
+
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_request():
+    form = RequestResetForm()
+    if form.validate_on_submit():
+        user = db.session.execute(db.select(User).where(User.email == form.email.data)).scalar()
+        send_reset_email(user)
+        flash('An email has been sent with instructions to reset your password', 'primary')
+        return redirect(url_for('login'))
+    return render_template("reset_request.html", form=form, title="Reset Password")
+
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_token(token):
+    user = User.verify_reset_token(token)
+    if user is None:
+        flash('That is an invalid or expired token.', 'warning')
+        return redirect(url_for('reset_request'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_password = generate_password_hash(form.password.data)
+        user.password = hashed_password
+        db.session.commit()
+        flash('Your password has been updated! You are now able to log in', 'success')
+        return redirect(url_for('login'))
+    return render_template("reset_token.html", form=form, title="Reset Password")
+
+
 @app.route('/contact')
 def contact():
     return render_template("contact.html", title="Contact")
-
-

@@ -83,5 +83,20 @@ class CommentForm(FlaskForm):
     submit = SubmitField('Post')
 
 
+class RequestResetForm(FlaskForm):
+    email = EmailField('Email', validators=[InputRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
 
+    def validate_email(self, email):
+        user = db.session.execute(db.select(User).where(User.email == email.data)).scalar()
+        if user is None:
+            raise ValidationError('There is no account with that email. You must register first.')
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=16)])
+    confirm_password = PasswordField('Confirm Password', validators=[InputRequired(),
+                                                                     EqualTo('password',
+                                                                             message='Password and Confirm Password must match')])
+    submit = SubmitField('Reset Password')
 
