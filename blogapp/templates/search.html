@@ -4,7 +4,22 @@
 
       <div class="row">
         <div class="col-md-9">
+            {% if search_value %}
+                <div class="text-center">
+                  <h2>Results for : {{ search_value }}</h2>
+                    <span class="text-muted">{{ posts.total }} Results</span>
+                  <hr>
+                </div>
+            {% elif param_value %}
+                <div class="text-center">
+                  <h2>Results for : {{ param_value }}</h2>
+                    <span class="text-muted">{{ posts.total }} Results</span>
+                  <hr>
+                </div>
+            {% endif %}
+
             {% include "flash_message.html" %}
+
             {% for post in posts %}
                 <article class="card mb-4">
                     <header class="card-header">
@@ -28,19 +43,18 @@
             <div class="row justify-content-center">
                 <div class="col-md-4 text-center">
                     {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=1) %}
-                    {% if page_num %}
-                        {% if posts.page == page_num %}
-                            <a class="btn btn-info mb-4" href="{{ url_for('home', page=page_num) }}">{{ page_num }}</a>
+                        {% if page_num %}
+                            {% if posts.page == page_num %}
+                                <a class="btn btn-info mb-4" href="{{ url_for('search',param=param_value, page=page_num) }}">{{ page_num }}</a>
+                            {% else %}
+                                <a class="btn btn-outline-info mb-4" href="{{ url_for('search',param=param_value, page=page_num) }}">{{ page_num }}</a>
+                            {% endif %}
                         {% else %}
-                            <a class="btn btn-outline-info mb-4" href="{{ url_for('home', page=page_num) }}">{{ page_num }}</a>
+                            ...
                         {% endif %}
-                    {% else %}
-                        ...
-                    {% endif %}
-                {% endfor %}
+                    {% endfor %}
                 </div>
             </div>
-
         </div>
         {% include "sidebar.html" %}
       </div>

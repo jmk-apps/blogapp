@@ -100,3 +100,8 @@ class ResetPasswordForm(FlaskForm):
                                                                              message='Password and Confirm Password must match')])
     submit = SubmitField('Reset Password')
 
+
+class SearchForm(FlaskForm):
+    content = StringField('Content', validators=[InputRequired()])
+    submit = SubmitField('Search')
+

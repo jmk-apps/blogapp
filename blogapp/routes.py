@@ -279,6 +279,41 @@ def reset_token(token):
     return render_template("reset_token.html", form=form, title="Reset Password")
 
 
+categories = [
+    'Travel',
+    'Technology',
+    'Books',
+    'Activities',
+    'Work'
+]
+
+archives = [
+    "2024",
+    "2023",
+    "2022",
+    "2021",
+    "2020"
+]
+
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    stmt = db.select(Post).order_by(Post.date_posted.desc())
+    page = request.args.get('page', 1, type=int)
+    param = request.args.get("param")
+
+    search_value = request.form.get("search")
+    if search_value:
+        stmt = db.select(Post).where(Post.content.icontains(search_value)).order_by(Post.date_posted.desc())
+    elif param in categories:
+        stmt = db.select(Post).filter_by(category=param).order_by(Post.date_posted.desc())
+    elif param in archives:
+        stmt = db.select(Post).where(Post.date_posted.icontains(param)).order_by(Post.date_posted.desc())
+
+    posts = db.paginate(stmt, page=page, per_page=3)
+    return render_template("search.html", param_value=param, search_value=search_value, posts=posts, title="Search")
+
+
 @app.route('/contact')
 def contact():
     return render_template("contact.html", title="Contact")
