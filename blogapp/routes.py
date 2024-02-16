@@ -2,15 +2,17 @@ from blogapp import app, db, mail
 from flask import render_template, redirect, url_for, flash, request, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from blogapp.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, CommentForm, RequestResetForm, \
-    ResetPasswordForm
-from blogapp.models import User, Post, Comment, Reply
+    ResetPasswordForm, NewsletterForm, UpdateNewsletterForm
+from blogapp.models import User, Post, Comment, Reply, Subscriber, Newsletter
 from flask_login import login_user, logout_user, login_required, current_user
 import os
 import secrets
 from PIL import Image, ImageOps
 from html_sanitizer import Sanitizer
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from flask_mail import Message
+from itsdangerous.url_safe import URLSafeTimedSerializer
+import re
 
 # Allowed Tags for the html-sanitizer
 Tags = {
@@ -312,6 +314,184 @@ def search():
 
     posts = db.paginate(stmt, page=page, per_page=3)
     return render_template("search.html", param_value=param, search_value=search_value, posts=posts, title="Search")
+
+
+def send_subscriber_email(email):
+    s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    token = s.dumps({'email': email})
+    msg = Message('Subscribe Request', sender="kagandajohn762@gmail.com", recipients=[email])
+    msg.body = f'''To subscribe to the monthly newsletter, visit the following link:
+{url_for('subscribe_token', token=token, _external=True)}
+The link will expire after 3 minutes.
+If you did not make this request then simply ignore this email and no changes will be made.
+'''
+    mail.send(msg)
+
+
+def validate_email(email):
+    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    if re.fullmatch(regex, email):
+        return True
+    else:
+        return False
+
+
+@app.route('/subscribe', methods=['GET', 'POST'])
+def subscribe_request():
+    email = request.form.get('email')
+    if validate_email(email):
+        subscriber = db.session.execute(db.select(Subscriber).where(Subscriber.email == email)).scalar()
+        if subscriber:
+            flash('That email is already included in the subscriber list.', 'success')
+            return redirect(url_for('home'))
+        send_subscriber_email(email)
+        flash('An email has been sent with instructions to subscribe to the monthly newsletter', 'primary')
+        return redirect(url_for('home'))
+    else:
+        flash('The email entered was invalid, please enter a valid email', 'danger')
+        return redirect(url_for('home'))
+
+
+def verify_subscribe_token(token, expires=180):
+    s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    try:
+        email = s.loads(token, max_age=expires)['email']
+    except:
+        return None
+    return email
+
+
+@app.route('/subscribe/<token>', methods=['GET', 'POST'])
+def subscribe_token(token):
+    subscriber_email = verify_subscribe_token(token)
+    if subscriber_email is None:
+        flash('That is an invalid or expired token.', 'warning')
+        return redirect(url_for('home'))
+    new_subscriber = Subscriber(email=subscriber_email)
+    db.session.add(new_subscriber)
+    db.session.commit()
+    flash('Your have successfully subscribed to our monthly newsletter', 'success')
+    return redirect(url_for('home'))
+
+
+def save_newsletter_file(news_letter_file):
+    # Get the filename and path
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(news_letter_file.filename)
+    newsletter_fn = random_hex + f_ext
+
+    picture_path = os.path.join(current_app.root_path, 'static/newsletters', newsletter_fn)
+    news_letter_file.save(picture_path)
+
+    return newsletter_fn
+
+
+def delete_newsletter_file(news_letter_file):
+    file_path = os.path.join(current_app.root_path, 'static/newsletters', news_letter_file)
+    os.remove(file_path)
+
+
+@app.route('/newsletter/new', methods=['GET', 'POST'])
+@login_required
+def new_newsletter():
+    form = NewsletterForm()
+    if form.validate_on_submit():
+        newsletter_fn = save_newsletter_file(form.newsletter_file.data)
+        newsletter_new = Newsletter(
+            subject=form.subject.data,
+            message=form.message.data,
+            author=current_user.username,
+            date_created=datetime.now(timezone.utc),
+            newsletter_file=newsletter_fn
+        )
+        db.session.add(newsletter_new)
+        db.session.commit()
+        flash("Your newsletter has been created!", "success")
+        return redirect(url_for('newsletter_home'))
+
+    return render_template("create_edit_newsletter.html", form=form, legend="New Newsletter", title="New Newsletter")
+
+
+@app.route('/newsletter/<int:newsletter_id>', methods=['GET', 'POST'])
+@login_required
+def newsletter(newsletter_id):
+    newsletter = db.get_or_404(Newsletter, newsletter_id)
+    return render_template("newsletter.html", legend="Newsletter", newsletter=newsletter, title="Newsletter")
+
+
+@app.route('/newsletter/<int:newsletter_id>/update', methods=['GET', 'POST'])
+@login_required
+def update_newsletter(newsletter_id):
+    newsletter = db.get_or_404(Newsletter, newsletter_id)
+    form = UpdateNewsletterForm()
+    if form.validate_on_submit():
+        if form.newsletter_file.data:
+            delete_newsletter_file(newsletter.newsletter_file)
+            file_name = save_newsletter_file(form.newsletter_file.data)
+            newsletter.newsletter_file = file_name
+        newsletter.subject = form.subject.data
+        newsletter.message = form.message.data
+        db.session.commit()
+        flash("Your newsletter has been updated!", "success")
+        return redirect(url_for('newsletter', newsletter_id=newsletter.id))
+    elif request.method == 'GET':
+        form.subject.data = newsletter.subject
+        form.message.data = newsletter.message
+    newsletter_fn = newsletter.newsletter_file
+
+    return render_template("create_edit_newsletter.html", form=form, letter_id=newsletter.id,
+                           newsletter_file=newsletter_fn, legend="Update Newsletter", title="Update Newsletter")
+
+
+@app.route('/newsletter/<int:newsletter_id>/delete', methods=['POST'])
+@login_required
+def delete_newsletter(newsletter_id):
+    newsletter = db.get_or_404(Newsletter, newsletter_id)
+    delete_newsletter_file(newsletter.newsletter_file)
+    db.session.delete(newsletter)
+    db.session.commit()
+    flash("Your newsletter has been deleted!", "success")
+    return redirect(url_for("newsletter_home"))
+
+
+def send_newsletter_email(newsletter):
+    subscribers = db.session.execute(db.select(Subscriber)).scalars().all()
+    if subscribers:
+        with mail.connect() as conn:
+            for subscriber in subscribers:
+                msg = Message(sender="kagandajohn762@gmail.com",
+                              recipients=[subscriber.email],
+                              subject=newsletter.subject,
+                              body=newsletter.message
+                              )
+                os.path.join(current_app.root_path, 'static/newsletters', newsletter.newsletter_file)
+                with current_app.open_resource(
+                        os.path.join(current_app.root_path, 'static/newsletters', newsletter.newsletter_file)) as fp:
+                    msg.attach(newsletter.newsletter_file, f"{newsletter.newsletter_file}/pdf", fp.read())
+                conn.send(msg)
+        newsletter.date_email = datetime.now(timezone.utc)
+        return True
+    else:
+        return False
+
+@app.route('/newsletter/<int:newsletter_id>/email', methods=['POST'])
+@login_required
+def email_newsletter(newsletter_id):
+    newsletter = db.get_or_404(Newsletter, newsletter_id)
+    email_sent = send_newsletter_email(newsletter)
+    if email_sent:
+        flash("Your newsletter has been emailed to all subscribers!", "success")
+    else:
+        flash("Your newsletter was not emailed. Please check the subscriber list!", "danger")
+    return redirect(url_for("newsletter_home"))
+
+
+@app.route('/newsletter', methods=['GET', 'POST'])
+@login_required
+def newsletter_home():
+    page = request.args.get('page', 1, type=int)
+    newsletters = db.paginate(db.select(Newsletter).order_by(Newsletter.date_created.desc()), page=page, per_page=12)
+    return render_template("newsletter_list.html", newsletters=newsletters, title="Newsletters Home")
 
 
 @app.route('/contact')

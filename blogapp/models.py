@@ -95,3 +95,18 @@ class Reply(db.Model):
     # Relationship with comment
     comment_id: Mapped[int] = mapped_column(ForeignKey("comment.id"), nullable=False)
     comment_post: Mapped["Comment"] = relationship(back_populates="replies")
+
+
+class Subscriber(db.Model):
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    email: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
+
+
+class Newsletter(db.Model):
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    subject: Mapped[str] = mapped_column(String(150), nullable=False)
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    newsletter_file: Mapped[str] = mapped_column(String(50), nullable=False, default="default_post_pic.jpg")
+    date_created: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    date_emailed: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    author: Mapped[str] = mapped_column(String(30), nullable=False)

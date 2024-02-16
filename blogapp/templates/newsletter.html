@@ -1,0 +1,92 @@
+{% include "header.html" %}
+
+<div class="container">
+      <div class="row">
+        <div class="col-md-8 mx-auto">
+
+          <article class="card mb-4">
+            <div class="card-body">
+
+              {% include "flash_message.html" %}
+              <h1 class="border-bottom mb-4 text-center">{{ legend }}</h1>
+              <div>
+                  <h4 class="fw-medium">Subject:</h4>
+                  <p class="ms-5">{{ newsletter.subject  }}</p>
+              </div>
+              <div>
+                  <h4 class="fw-medium">Message:</h4>
+                  <p class="ms-5">{{ newsletter.message  }}</p>
+              </div>
+              <div>
+                  <h4 class="fw-medium">Date Created:</h4>
+                  <p class="ms-5">{{ newsletter.date_created.strftime("%d-%b-%Y")  }}</p>
+              </div>
+              <div>
+                  <h4 class="fw-medium">Date Emailed:</h4>
+                  <p class="ms-5">{{ newsletter.date_emailed.strftime("%d-%b-%Y") if newsletter.date_emailed else "None"   }}</p>
+              </div>
+              <div>
+                  <h4 class="fw-medium">Newsletter File:</h4>
+                  <p class="ms-5">{{ newsletter.newsletter_file  }}</p>
+              </div>
+              <div class="text-end">
+                  <a class="btn btn-info" href="{{ url_for('update_newsletter', newsletter_id=newsletter.id) }}">Update</a>
+                  <a
+                          class="btn btn-danger ms-1"
+                          data-bs-toggle="modal"
+                          data-bs-target="#deleteNewsletterModal">
+                      Delete
+                  </a>
+                  <a
+                          class="btn btn-primary ms-1"
+                          data-bs-toggle="modal"
+                          data-bs-target="#emailNewsletterModal"  >Email Newsletter</a>
+              </div>
+
+
+            </div>
+          </article><!-- /.card -->
+
+        </div>
+      </div>
+    </div>
+
+<!-- Modal for the Newsletter delete button -->
+<div class="modal fade" id="deleteNewsletterModal" tabindex="-1" aria-labelledby="deleteNewsletterModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="deleteNewsletterModalLabel">Delete Newsletter?</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <form action="{{ url_for('delete_newsletter', newsletter_id=newsletter.id) }}" method="post">
+              <input class="btn btn-danger" type="submit" value="Delete">
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal for the Newsletter delete button -->
+
+<!-- Modal for the Newsletter email button -->
+<div class="modal fade" id="emailNewsletterModal" tabindex="-1" aria-labelledby="emailNewsletterModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="emailNewsletterModalLabel">Email Newsletter?</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <form action="{{ url_for('email_newsletter', newsletter_id=newsletter.id) }}" method="post">
+              <input class="btn btn-success" type="submit" value="Email">
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal for the Newsletter email button -->
+
+{% include "footer.html" %}

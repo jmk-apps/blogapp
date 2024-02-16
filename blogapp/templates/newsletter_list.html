@@ -1,0 +1,64 @@
+{% include "header.html" %}
+
+    <div class="container">
+
+      <div class="row">
+        <div class="col-md-9">
+
+            <header class="card-header text-start">
+              <h1 class="card-title">Newsletters</h1>
+            </header>
+            {% include "flash_message.html" %}
+            <div>
+                <a class="btn btn-primary" href="{{ url_for('new_newsletter') }}">Create Newsletter</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Subject</th>
+                      <th scope="col">Author</th>
+                      <th scope="col">Newsletter</th>
+                      <th scope="col">Date Created</th>
+                      <th scope="col">Date Emailed</th>
+                      <th scope="col">View</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                      {% for newsletter in newsletters %}
+                          <tr>
+                              <th scope="row">{{ newsletter.id }}</th>
+                              <td>{{ newsletter.subject }}</td>
+                              <td>{{ newsletter.author }}</td>
+                              <td>{{ newsletter.newsletter_file }}</td>
+                              <td>{{ newsletter.date_created.strftime("%d-%b-%Y") }}</td>
+                              <td>{{ newsletter.date_emailed.strftime("%d-%b-%Y") if newsletter.date_emailed else "None" }}</td>
+                              <td><a class="btn btn-primary" href="{{ url_for('newsletter', newsletter_id=newsletter.id) }}">View</a></td>
+                            </tr>
+                      {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-4 text-center">
+                    {% for page_num in newsletters.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=1) %}
+                    {% if page_num %}
+                        {% if newsletters.page == page_num %}
+                            <a class="btn btn-info mb-4" href="{{ url_for('newsletter_home', page=page_num) }}">{{ page_num }}</a>
+                        {% else %}
+                            <a class="btn btn-outline-info mb-4" href="{{ url_for('newsletter_home', page=page_num) }}">{{ page_num }}</a>
+                        {% endif %}
+                    {% else %}
+                        ...
+                    {% endif %}
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% include "sidebar.html" %}
+      </div>
+    </div>
+
+{% include "footer.html" %}

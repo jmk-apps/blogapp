@@ -4,7 +4,7 @@ from wtforms.fields.simple import TextAreaField
 from blogapp import db
 from blogapp.models import User
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 from flask_ckeditor import CKEditorField
 from wtforms import StringField, EmailField, PasswordField, SubmitField, BooleanField, SelectField
 from wtforms.validators import InputRequired, Length, Email, EqualTo, ValidationError
@@ -105,3 +105,16 @@ class SearchForm(FlaskForm):
     content = StringField('Content', validators=[InputRequired()])
     submit = SubmitField('Search')
 
+
+class NewsletterForm(FlaskForm):
+    subject = StringField('Subject', validators=[InputRequired()])
+    message = TextAreaField('Message', validators=[InputRequired()])
+    newsletter_file = FileField("Newsletter", validators=[FileAllowed(['pdf']), FileRequired()])
+    submit = SubmitField('Create')
+
+
+class UpdateNewsletterForm(FlaskForm):
+    subject = StringField('Subject', validators=[InputRequired()])
+    message = TextAreaField('Message', validators=[InputRequired()])
+    newsletter_file = FileField("Newsletter", validators=[FileAllowed(['pdf'])])
+    submit = SubmitField('Update')

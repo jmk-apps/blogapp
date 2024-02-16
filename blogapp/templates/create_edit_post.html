@@ -74,7 +74,7 @@
                       {% if form.post_pic.errors %}
                           {{ form.post_pic(class_="form-control is-invalid") }}
                           <div class="invalid-feedback">
-                            {% for error in form.category.errors %}
+                            {% for error in form.post_pic.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                           </div>
