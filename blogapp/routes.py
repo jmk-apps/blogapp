@@ -2,7 +2,7 @@ from blogapp import app, db, mail
 from flask import render_template, redirect, url_for, flash, request, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from blogapp.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, CommentForm, RequestResetForm, \
-    ResetPasswordForm, NewsletterForm, UpdateNewsletterForm
+    ResetPasswordForm, NewsletterForm, UpdateNewsletterForm, ContactUsForm
 from blogapp.models import User, Post, Comment, Reply, Subscriber, Newsletter
 from flask_login import login_user, logout_user, login_required, current_user
 import os
@@ -474,6 +474,7 @@ def send_newsletter_email(newsletter):
     else:
         return False
 
+
 @app.route('/newsletter/<int:newsletter_id>/email', methods=['POST'])
 @login_required
 def email_newsletter(newsletter_id):
@@ -494,6 +495,17 @@ def newsletter_home():
     return render_template("newsletter_list.html", newsletters=newsletters, title="Newsletters Home")
 
 
-@app.route('/contact')
+@app.route('/contact', methods=['GET', 'POST'])
 def contact():
-    return render_template("contact.html", title="Contact")
+    form = ContactUsForm()
+    if form.validate_on_submit():
+        msg = Message(
+            subject=f"Contact Us Query from: {form.name.data}, email: {form.email.data}",
+            sender="kagandajohn762@gmail.com",
+            recipients=["kagandajohn762@gmail.com"],
+            body=form.message.data
+        )
+        mail.send(msg)
+        flash("Your query has been received! We will respond as soon as we can.", "success")
+        return redirect(url_for("home"))
+    return render_template("contact.html", form=form, title="Contact")

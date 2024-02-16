@@ -118,3 +118,10 @@ class UpdateNewsletterForm(FlaskForm):
     message = TextAreaField('Message', validators=[InputRequired()])
     newsletter_file = FileField("Newsletter", validators=[FileAllowed(['pdf'])])
     submit = SubmitField('Update')
+
+
+class ContactUsForm(FlaskForm):
+    name = StringField('Name', validators=[InputRequired()])
+    email = EmailField('Email', validators=[InputRequired(), Email()])
+    message = TextAreaField('Message', validators=[InputRequired()])
+    submit = SubmitField('Send')

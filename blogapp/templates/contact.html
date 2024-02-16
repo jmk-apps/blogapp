@@ -10,29 +10,56 @@
             </header>
             <div class="card-body">
 
-              <p><strong>Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus.</strong></p>
+              <p>At <strong>He@d$p@ce</strong> we offer more than just blogs with excellent advice to get you in the right headspace, we also do workshops where companies
+                can send their employees for team building and educate them in not only building but sustaining a great work environment. We believe that
+                excellent mental health is something that does not require you having to go on vacation or retreats only, but it is something that you can get
+                with the right tools and attitude where ever you are. You might just have a query you would like to discuss with us, thats okay too. You can contact us
+                by filling in the form below. We will get back to as soon as we can.</p>
 
-              <p>Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim.</p>
-
-              <form>
-                <div class="mb-3">
-                  <label class="form-label" for="name">Name</label>
-                  <input type="text" class="form-control" id="name" placeholder="Name">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label" for="company">Company</label>
-                  <input type="text" class="form-control" id="company" placeholder="Company">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label" for="email">Email</label>
-                  <input type="email" class="form-control" id="email" placeholder="Email address">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label" for="question">Message</label>
-                  <textarea class="form-control" id="message" rows="4" placeholder="Message"></textarea>
-                </div>
-
-                <button type="button" class="btn btn-success">Send</button>
+              <form action="" method="post" novalidate>
+                  {{ form.csrf_token }}
+                  <div>
+                      {{ form.name.label(class_="form-label") }}
+                      {% if form.name.errors %}
+                          {{ form.name(class_="form-control is-invalid") }}
+                          <div class="invalid-feedback">
+                            {% for error in form.name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                          </div>
+                      {% else %}
+                          {{ form.name(class_="form-control") }}
+                      {% endif %}
+                  </div>
+                  <div>
+                      {{ form.email.label(class_="form-label mt-3") }}
+                      {% if form.email.errors %}
+                          {{ form.email(class_="form-control is-invalid") }}
+                          <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                          </div>
+                      {% else %}
+                          {{ form.email(class_="form-control") }}
+                      {% endif %}
+                  </div>
+                  <div>
+                      {{ form.message.label(class_="form-label mt-3") }}
+                      {% if form.message.errors %}
+                          {{ form.message(class_="form-control is-invalid", rows="6") }}
+                          <div class="invalid-feedback">
+                            {% for error in form.message.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                          </div>
+                      {% else %}
+                          {{ form.message(class_="form-control", rows="6") }}
+                      {% endif %}
+                  </div>
+                  <div class="form-group">
+                      {{ form.submit(class_="btn btn-success mt-3") }}
+                  </div>
               </form>
 
             </div>
