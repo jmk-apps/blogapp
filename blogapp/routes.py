@@ -105,7 +105,8 @@ def register():
         new_user = User(
             username=form.username.data,
             email=form.email.data,
-            password=hashed_password
+            password=hashed_password,
+            date_created=datetime.now(timezone.utc)
         )
         db.session.add(new_user)
         db.session.commit()
@@ -364,7 +365,8 @@ def verify_subscribe_token(token, expires=180):
 @app.route('/subscribe/<token>', methods=['GET', 'POST'])
 def subscribe_token(token):
     subscriber_email = verify_subscribe_token(token)
-    current_subscriber_email = db.session.execute(db.select(Subscriber).where(Subscriber.email == subscriber_email)).scalar()
+    current_subscriber_email = db.session.execute(
+        db.select(Subscriber).where(Subscriber.email == subscriber_email)).scalar()
     if subscriber_email is None or current_subscriber_email:
         flash('That is an invalid or expired token.', 'warning')
         return redirect(url_for('home'))
@@ -531,4 +533,64 @@ def delete_subscriber(subscriber_id):
     db.session.commit()
     flash("Subscriber has been deleted!", "success")
     return redirect(url_for("subscriber_list"))
+
+
+@app.route('/user/list', methods=['GET', 'POST'])
+@login_required
+def user_list():
+    page = request.args.get('page', 1, type=int)
+    users = db.paginate(db.select(User).order_by(User.date_created), page=page, per_page=12)
+    return render_template("user_list.html", users=users, title="User List")
+
+
+@app.route('/user/<int:user_id>/delete', methods=['POST'])
+@login_required
+def delete_user(user_id):
+    admin_delete = False
+    if current_user.id != user_id:
+        admin_delete = True
+
+    user = db.get_or_404(User, user_id)
+    delete_picture(user.profile_pic, "profile")
+    if user.admin:
+        for post in user.posts:
+            delete_picture(post.profile_pic, "post")
+    db.session.delete(user)
+    db.session.commit()
+
+    if admin_delete:
+        flash("User has been deleted!", "success")
+        return redirect(url_for("user_list"))
+    else:
+        logout_user()
+        flash("Your account has been deleted!", "success")
+        return redirect(url_for('home'))
+
+
+@app.route('/user-details/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def user_details(user_id):
+    user = db.get_or_404(User, user_id)
+    image_file = url_for('static', filename=f'profile_pics/{user.profile_pic}')
+    return render_template("user_details.html", user=user, image_file=image_file, title="User Details")
+
+
+@app.route('/user-details/<int:user_id>/admin', methods=['POST'])
+@login_required
+def make_user_admin(user_id):
+    user = db.get_or_404(User, user_id)
+    user.admin = True
+    db.session.commit()
+    flash("User status has been updated to admin", "success")
+    return redirect(url_for('user_details', user_id=user_id))
+
+
+@app.route('/user-details/<int:user_id>/user', methods=['POST'])
+@login_required
+def make_admin_user(user_id):
+    user = db.get_or_404(User, user_id)
+    user.admin = False
+    db.session.commit()
+    flash("Admin status has been changed to user", "success")
+    return redirect(url_for('user_details', user_id=user_id))
 

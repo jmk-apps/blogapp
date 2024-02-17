@@ -56,8 +56,14 @@
                           {{ form.profile_pic(class_="form-control") }}
                       {% endif %}
                   </div>
-                  <div>
+                  <div class="align-items-center">
                       {{ form.submit(class_="btn btn-info mt-4") }}
+                      <a
+                              class="btn btn-danger mt-4 ms-1"
+                              data-bs-toggle="modal"
+                              data-bs-target="#deleteUserModal">
+                          Delete
+                      </a>
                   </div>
               </form>
 
@@ -67,5 +73,24 @@
         </div>
       </div>
     </div>
+
+<!-- Modal for the User delete button -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="deleteUserModalLabel">Delete Account?</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <form action="{{ url_for('delete_user', user_id=current_user.id) }}" method="post">
+              <input class="btn btn-danger" type="submit" value="Delete">
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal for the User delete button -->
 
 {% include "footer.html" %}

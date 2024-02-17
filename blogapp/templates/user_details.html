@@ -1,0 +1,122 @@
+{% include "header.html" %}
+
+<div class="container">
+      <div class="row">
+        <div class="col-md-8 mx-auto">
+
+          <article class="card mb-4">
+            <div class="card-body">
+
+              {% include "flash_message.html" %}
+              <h1 class="border-bottom mb-4 text-center">User Details</h1>
+              <div class="text-center mb-4">
+                    <img class="" src="{{ image_file }}" alt="">
+              </div>
+              <div>
+                  <h4 class="fw-medium">Admin Status:</h4>
+                  <p class="ms-5">{{ user.admin  }}</p>
+              </div>
+              <div>
+                  <h4 class="fw-medium">Username:</h4>
+                  <p class="ms-5">{{ user.username  }}</p>
+              </div>
+              <div>
+                  <h4 class="fw-medium">Email:</h4>
+                  <p class="ms-5">{{ user.email  }}</p>
+              </div>
+              <div>
+                  <h4 class="fw-medium">Date Created:</h4>
+                  <p class="ms-5">{{ user.date_created.strftime("%d-%b-%Y")  }}</p>
+              </div>
+              <div class="text-start mt-4">
+                  {% if not user.admin %}
+                    <a
+                            class="btn btn-info"
+                            data-bs-toggle="modal"
+                            data-bs-target="#makeAdminModal">
+                        Update to Admin
+                    </a>
+                  {% else %}
+                    <a
+                            class="btn btn-info"
+                            data-bs-toggle="modal"
+                            data-bs-target="#removeAdminModal">
+                        Remove Admin Status
+                    </a>
+                  {% endif %}
+                  <a
+                          class="btn btn-danger ms-1"
+                          data-bs-toggle="modal"
+                          data-bs-target="#deleteUserModal">
+                      Delete
+                  </a>
+              </div>
+
+            </div>
+          </article><!-- /.card -->
+
+        </div>
+      </div>
+    </div>
+
+
+<!-- Modal to update User admin status button -->
+<div class="modal fade" id="makeAdminModal" tabindex="-1" aria-labelledby="makeAdminModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="makeAdminModalLabel">Make the User an Admin?</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <form action="{{ url_for('make_user_admin', user_id=user.id) }}" method="post">
+              <input class="btn btn-success" type="submit" value="Yes">
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal to update User admin status button -->
+
+<!-- Modal remove User admin status button -->
+<div class="modal fade" id="removeAdminModal" tabindex="-1" aria-labelledby="removeAdminModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="removeAdminModalLabel">Remove Admin status of User?</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <form action="{{ url_for('make_admin_user', user_id=user.id) }}" method="post">
+              <input class="btn btn-success" type="submit" value="Yes">
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal to remove User admin status button -->
+
+
+<!-- Modal for the User delete button -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="deleteUserModalLabel">Delete User?</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <form action="{{ url_for('delete_user', user_id=user.id) }}" method="post">
+              <input class="btn btn-danger" type="submit" value="Delete">
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal for the User delete button -->
+
+
+{% include "footer.html" %}

@@ -1,5 +1,5 @@
 from blogapp import db, login_manager, app
-from sqlalchemy import Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, timezone
 from flask_login import UserMixin
@@ -19,6 +19,8 @@ class User(db.Model, UserMixin):
     email: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
     profile_pic: Mapped[str] = mapped_column(String(50), nullable=False, default="default_profile_pic.jpg")
     password: Mapped[str] = mapped_column(String(250), nullable=False)
+    admin: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    date_created: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     # Relationship with post
     posts: Mapped[list["Post"]] = relationship(back_populates="author")
@@ -101,6 +103,7 @@ class Subscriber(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     email: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
     date_subscribed: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
 
 
 class Newsletter(db.Model):
