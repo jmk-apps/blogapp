@@ -364,10 +364,14 @@ def verify_subscribe_token(token, expires=180):
 @app.route('/subscribe/<token>', methods=['GET', 'POST'])
 def subscribe_token(token):
     subscriber_email = verify_subscribe_token(token)
-    if subscriber_email is None:
+    current_subscriber_email = db.session.execute(db.select(Subscriber).where(Subscriber.email == subscriber_email)).scalar()
+    if subscriber_email is None or current_subscriber_email:
         flash('That is an invalid or expired token.', 'warning')
         return redirect(url_for('home'))
-    new_subscriber = Subscriber(email=subscriber_email)
+    new_subscriber = Subscriber(
+        email=subscriber_email,
+        date_subscribed=datetime.now(timezone.utc)
+    )
     db.session.add(new_subscriber)
     db.session.commit()
     flash('Your have successfully subscribed to our monthly newsletter', 'success')
@@ -509,3 +513,22 @@ def contact():
         flash("Your query has been received! We will respond as soon as we can.", "success")
         return redirect(url_for("home"))
     return render_template("contact.html", form=form, title="Contact")
+
+
+@app.route('/subscribe/list', methods=['GET', 'POST'])
+@login_required
+def subscriber_list():
+    page = request.args.get('page', 1, type=int)
+    subscribers = db.paginate(db.select(Subscriber).order_by(Subscriber.date_subscribed), page=page, per_page=12)
+    return render_template("subscriber_list.html", subscribers=subscribers, title="Subscriber List")
+
+
+@app.route('/subscribe/<int:subscriber_id>/delete', methods=['POST'])
+@login_required
+def delete_subscriber(subscriber_id):
+    subscriber = db.get_or_404(Subscriber, subscriber_id)
+    db.session.delete(subscriber)
+    db.session.commit()
+    flash("Subscriber has been deleted!", "success")
+    return redirect(url_for("subscriber_list"))
+

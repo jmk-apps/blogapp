@@ -100,6 +100,7 @@ class Reply(db.Model):
 class Subscriber(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     email: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
+    date_subscribed: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
 
 class Newsletter(db.Model):
