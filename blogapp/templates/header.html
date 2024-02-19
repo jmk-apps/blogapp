@@ -29,36 +29,35 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('about') }}">About</a>
             </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Categories</a>
-              <div class="dropdown-menu" aria-labelledby="dropdown03">
-                <a class="dropdown-item" href="doc-alerts.html">Journey</a>
-                <a class="dropdown-item" href="doc-buttons.html">Work</a>
-                <a class="dropdown-item" href="doc-cards.html">Lifestyle</a>
-                <a class="dropdown-item" href="doc-carousel.html">Photography</a>
-                <a class="dropdown-item" href="doc-forms.html">Food & Drinks</a>
-              </div>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('contact') }}">Contact</a>
             </li>
           </ul>
         </div>
 
-        <a class="navbar-brand mx-auto order-1 order-md-3" href="index.html">HE@D$P@CE</a>
+        <a class="navbar-brand mx-auto order-1 order-md-3" href="{{ url_for('home') }}">HE@D$P@CE</a>
 
         <div class="collapse navbar-collapse order-4 order-md-4" id="navbar-right">
           <ul class="navbar-nav ms-auto">
               {% if current_user.is_authenticated %}
-                  <li class="nav-item">
-                     <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                  <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Account</a>
+                      <div class="dropdown-menu" aria-labelledby="dropdown01">
+                        <a class="dropdown-item" href="{{ url_for('account') }}">Details</a>
+                        <a class="dropdown-item" href="{{ url_for('logout') }}">logout</a>
+                      </div>
                   </li>
-                  <li>
-                      <a class="nav-link" href="{{ url_for('account') }}">Account</a>
-                  </li>
-                  <li>
-                      <a class="nav-link" href="{{ url_for('new_post') }}">New Post</a>
-                  </li>
-                 <li>
-                      <a class="nav-link" href="{{ url_for('newsletter_home') }}">Newsletters</a>
-                  </li>
+                  {% if current_user.admin %}
+                      <li class="nav-item dropdown">
+                          <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin</a>
+                          <div class="dropdown-menu" aria-labelledby="dropdown02">
+                            <a class="dropdown-item" href="{{ url_for('new_post') }}">New Post</a>
+                            <a class="dropdown-item" href="{{ url_for('user_list') }}">User List</a>
+                            <a class="dropdown-item" href="{{ url_for('subscriber_list') }}">Subscriber List</a>
+                            <a class="dropdown-item" href="{{ url_for('newsletter_home') }}">Newsletters</a>
+                          </div>
+                      </li>
+                  {% endif %}
               {% else %}
                   <li class="nav-item">
                      <a class="nav-link" href="{{ url_for('login') }}">Login</a>
@@ -67,9 +66,6 @@
                      <a class="nav-link" href="{{ url_for('register') }}">Register</a>
                   </li>
               {% endif %}
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('contact') }}">Contact</a>
-            </li>
           </ul>
           <form method="post" action="{{ url_for('search') }}" class="form-inline" role="search">
             <input id="search" name="search" class="search js-search form-control form-control-rounded me-sm-2" type="text" title="Enter search query here.." placeholder="Search.." aria-label="Search">

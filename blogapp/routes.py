@@ -1,5 +1,5 @@
 from blogapp import app, db, mail
-from flask import render_template, redirect, url_for, flash, request, current_app
+from flask import render_template, redirect, url_for, flash, request, current_app, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from blogapp.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, CommentForm, RequestResetForm, \
     ResetPasswordForm, NewsletterForm, UpdateNewsletterForm, ContactUsForm
@@ -12,6 +12,7 @@ from html_sanitizer import Sanitizer
 from datetime import datetime, timezone, timedelta
 from flask_mail import Message
 from itsdangerous.url_safe import URLSafeTimedSerializer
+from functools import wraps
 import re
 
 # Allowed Tags for the html-sanitizer
@@ -31,6 +32,17 @@ sanitizer = Sanitizer({
     },
     "empty": {"hr", "a", "br", "img"},
 })
+
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # if the user does not have admin status, then return abort with 403 error
+        if current_user.admin is False:
+            return abort(403)
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 
 @app.route('/')
@@ -136,6 +148,7 @@ def logout():
 
 
 @app.route("/post/new", methods=['GET', 'POST'])
+@admin_required
 @login_required
 def new_post():
     form = PostForm()
@@ -186,6 +199,7 @@ def show_post(post_id):
 
 
 @app.route('/reply/<int:comment_id>', methods=["POST"])
+@login_required
 def new_reply(comment_id):
     comment = db.session.execute(db.select(Comment).where(Comment.id == comment_id)).scalar()
     # The CommentForm is used for the reply form because their structure the same.
@@ -208,6 +222,8 @@ def new_reply(comment_id):
 
 
 @app.route('/post/<int:post_id>/update', methods=['GET', 'POST'])
+@admin_required
+@login_required
 def update_post(post_id):
     post = db.get_or_404(Post, post_id)
     form = PostForm()
@@ -235,6 +251,8 @@ def update_post(post_id):
 
 
 @app.route('/post/<int:post_id>/delete', methods=['POST'])
+@admin_required
+@login_required
 def delete_post(post_id):
     post = db.get_or_404(Post, post_id)
     delete_picture(post.post_pic, "post")
@@ -398,6 +416,7 @@ def delete_newsletter_file(news_letter_file):
 
 
 @app.route('/newsletter/new', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def new_newsletter():
     form = NewsletterForm()
@@ -419,6 +438,7 @@ def new_newsletter():
 
 
 @app.route('/newsletter/<int:newsletter_id>', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def newsletter(newsletter_id):
     newsletter = db.get_or_404(Newsletter, newsletter_id)
@@ -426,6 +446,7 @@ def newsletter(newsletter_id):
 
 
 @app.route('/newsletter/<int:newsletter_id>/update', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def update_newsletter(newsletter_id):
     newsletter = db.get_or_404(Newsletter, newsletter_id)
@@ -450,6 +471,7 @@ def update_newsletter(newsletter_id):
 
 
 @app.route('/newsletter/<int:newsletter_id>/delete', methods=['POST'])
+@admin_required
 @login_required
 def delete_newsletter(newsletter_id):
     newsletter = db.get_or_404(Newsletter, newsletter_id)
@@ -482,6 +504,7 @@ def send_newsletter_email(newsletter):
 
 
 @app.route('/newsletter/<int:newsletter_id>/email', methods=['POST'])
+@admin_required
 @login_required
 def email_newsletter(newsletter_id):
     newsletter = db.get_or_404(Newsletter, newsletter_id)
@@ -494,6 +517,7 @@ def email_newsletter(newsletter_id):
 
 
 @app.route('/newsletter', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def newsletter_home():
     page = request.args.get('page', 1, type=int)
@@ -518,6 +542,7 @@ def contact():
 
 
 @app.route('/subscribe/list', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def subscriber_list():
     page = request.args.get('page', 1, type=int)
@@ -526,6 +551,7 @@ def subscriber_list():
 
 
 @app.route('/subscribe/<int:subscriber_id>/delete', methods=['POST'])
+@admin_required
 @login_required
 def delete_subscriber(subscriber_id):
     subscriber = db.get_or_404(Subscriber, subscriber_id)
@@ -536,6 +562,7 @@ def delete_subscriber(subscriber_id):
 
 
 @app.route('/user/list', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def user_list():
     page = request.args.get('page', 1, type=int)
@@ -568,6 +595,7 @@ def delete_user(user_id):
 
 
 @app.route('/user-details/<int:user_id>', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def user_details(user_id):
     user = db.get_or_404(User, user_id)
@@ -576,6 +604,7 @@ def user_details(user_id):
 
 
 @app.route('/user-details/<int:user_id>/admin', methods=['POST'])
+@admin_required
 @login_required
 def make_user_admin(user_id):
     user = db.get_or_404(User, user_id)
@@ -586,6 +615,7 @@ def make_user_admin(user_id):
 
 
 @app.route('/user-details/<int:user_id>/user', methods=['POST'])
+@admin_required
 @login_required
 def make_admin_user(user_id):
     user = db.get_or_404(User, user_id)
@@ -593,4 +623,3 @@ def make_admin_user(user_id):
     db.session.commit()
     flash("Admin status has been changed to user", "success")
     return redirect(url_for('user_details', user_id=user_id))
-
