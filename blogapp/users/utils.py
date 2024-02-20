@@ -1,5 +1,5 @@
 from flask import current_app, abort, url_for
-from blogapp import mail, app
+from blogapp import mail
 from itsdangerous.url_safe import URLSafeTimedSerializer
 from flask_login import current_user
 from functools import wraps
@@ -64,7 +64,7 @@ If you did not make this request then simply ignore this email and no changes wi
 
 
 def send_subscriber_email(email):
-    s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     token = s.dumps({'email': email})
     msg = Message('Subscribe Request', sender="kagandajohn762@gmail.com", recipients=[email])
     msg.body = f'''To subscribe to the monthly newsletter, visit the following link:
@@ -84,7 +84,7 @@ def validate_subscriber_email(email):
 
 
 def verify_subscribe_token(token, expires=180):
-    s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     try:
         email = s.loads(token, max_age=expires)['email']
     except:

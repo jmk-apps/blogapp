@@ -1,4 +1,5 @@
-from blogapp import db, login_manager, app
+from blogapp import db, login_manager
+from flask import current_app
 from sqlalchemy import Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, timezone
@@ -32,12 +33,12 @@ class User(db.Model, UserMixin):
     replies: Mapped[list["Reply"]] = relationship(back_populates="reply_author", cascade="all, delete-orphan")
 
     def get_reset_token(self):
-        s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+        s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
         return s.dumps({'user_id': self.id})
 
     @staticmethod
     def verify_reset_token(token, expires=1800):
-        s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+        s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
         try:
             user_id = s.loads(token, max_age=expires)['user_id']
         except:
