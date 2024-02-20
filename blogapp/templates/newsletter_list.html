@@ -10,7 +10,7 @@
             </header>
             {% include "flash_message.html" %}
             <div>
-                <a class="btn btn-primary" href="{{ url_for('new_newsletter') }}">Create Newsletter</a>
+                <a class="btn btn-primary" href="{{ url_for('newsletters.new_newsletter') }}">Create Newsletter</a>
             </div>
             <div class="table-responsive">
                 <table class="table table-striped align-middle">
@@ -34,7 +34,7 @@
                               <td>{{ newsletter.newsletter_file }}</td>
                               <td>{{ newsletter.date_created.strftime("%d-%b-%Y") }}</td>
                               <td>{{ newsletter.date_emailed.strftime("%d-%b-%Y") if newsletter.date_emailed else "None" }}</td>
-                              <td><a class="btn btn-primary" href="{{ url_for('newsletter', newsletter_id=newsletter.id) }}">View</a></td>
+                              <td><a class="btn btn-primary" href="{{ url_for('newsletters.newsletter', newsletter_id=newsletter.id) }}">View</a></td>
                             </tr>
                       {% endfor %}
                   </tbody>
@@ -46,9 +46,9 @@
                     {% for page_num in newsletters.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=1) %}
                     {% if page_num %}
                         {% if newsletters.page == page_num %}
-                            <a class="btn btn-info mb-4" href="{{ url_for('newsletter_home', page=page_num) }}">{{ page_num }}</a>
+                            <a class="btn btn-info mb-4" href="{{ url_for('newsletters.newsletter_home', page=page_num) }}">{{ page_num }}</a>
                         {% else %}
-                            <a class="btn btn-outline-info mb-4" href="{{ url_for('newsletter_home', page=page_num) }}">{{ page_num }}</a>
+                            <a class="btn btn-outline-info mb-4" href="{{ url_for('newsletters.newsletter_home', page=page_num) }}">{{ page_num }}</a>
                         {% endif %}
                     {% else %}
                         ...

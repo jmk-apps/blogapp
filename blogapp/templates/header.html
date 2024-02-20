@@ -24,18 +24,18 @@
         <div class="collapse navbar-collapse order-3 order-md-2" id="navbar-left">
           <ul class="navbar-nav me-auto">
             <li class="nav-item active">
-              <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+              <a class="nav-link" href="{{ url_for('main.home') }}">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('about') }}">About</a>
+              <a class="nav-link" href="{{ url_for('main.about') }}">About</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('contact') }}">Contact</a>
+              <a class="nav-link" href="{{ url_for('main.contact') }}">Contact</a>
             </li>
           </ul>
         </div>
 
-        <a class="navbar-brand mx-auto order-1 order-md-3" href="{{ url_for('home') }}">HE@D$P@CE</a>
+        <a class="navbar-brand mx-auto order-1 order-md-3" href="{{ url_for('main.home') }}">HE@D$P@CE</a>
 
         <div class="collapse navbar-collapse order-4 order-md-4" id="navbar-right">
           <ul class="navbar-nav ms-auto">
@@ -43,31 +43,31 @@
                   <li class="nav-item dropdown">
                       <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Account</a>
                       <div class="dropdown-menu" aria-labelledby="dropdown01">
-                        <a class="dropdown-item" href="{{ url_for('account') }}">Details</a>
-                        <a class="dropdown-item" href="{{ url_for('logout') }}">logout</a>
+                        <a class="dropdown-item" href="{{ url_for('users.account') }}">Details</a>
+                        <a class="dropdown-item" href="{{ url_for('users.logout') }}">logout</a>
                       </div>
                   </li>
                   {% if current_user.admin %}
                       <li class="nav-item dropdown">
                           <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin</a>
                           <div class="dropdown-menu" aria-labelledby="dropdown02">
-                            <a class="dropdown-item" href="{{ url_for('new_post') }}">New Post</a>
-                            <a class="dropdown-item" href="{{ url_for('user_list') }}">User List</a>
-                            <a class="dropdown-item" href="{{ url_for('subscriber_list') }}">Subscriber List</a>
-                            <a class="dropdown-item" href="{{ url_for('newsletter_home') }}">Newsletters</a>
+                            <a class="dropdown-item" href="{{ url_for('posts.new_post') }}">New Post</a>
+                            <a class="dropdown-item" href="{{ url_for('users.user_list') }}">User List</a>
+                            <a class="dropdown-item" href="{{ url_for('users.subscriber_list') }}">Subscriber List</a>
+                            <a class="dropdown-item" href="{{ url_for('newsletters.newsletter_home') }}">Newsletters</a>
                           </div>
                       </li>
                   {% endif %}
               {% else %}
                   <li class="nav-item">
-                     <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                     <a class="nav-link" href="{{ url_for('users.login') }}">Login</a>
                   </li>
                   <li class="nav-item">
-                     <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+                     <a class="nav-link" href="{{ url_for('users.register') }}">Register</a>
                   </li>
               {% endif %}
           </ul>
-          <form method="post" action="{{ url_for('search') }}" class="form-inline" role="search">
+          <form method="post" action="{{ url_for('main.search') }}" class="form-inline" role="search">
             <input id="search" name="search" class="search js-search form-control form-control-rounded me-sm-2" type="text" title="Enter search query here.." placeholder="Search.." aria-label="Search">
           </form>
         </div>

@@ -23,13 +23,13 @@ class User(db.Model, UserMixin):
     date_created: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     # Relationship with post
-    posts: Mapped[list["Post"]] = relationship(back_populates="author")
+    posts: Mapped[list["Post"]] = relationship(back_populates="author", cascade="all, delete-orphan")
 
     # Relationship with comments
-    comments: Mapped[list["Comment"]] = relationship(back_populates="comment_author")
+    comments: Mapped[list["Comment"]] = relationship(back_populates="comment_author", cascade="all, delete-orphan")
 
     # Relationship with replies
-    replies: Mapped[list["Reply"]] = relationship(back_populates="reply_author")
+    replies: Mapped[list["Reply"]] = relationship(back_populates="reply_author", cascade="all, delete-orphan")
 
     def get_reset_token(self):
         s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
@@ -61,7 +61,7 @@ class Post(db.Model):
     author: Mapped["User"] = relationship(back_populates="posts")
 
     # Relationship with comment
-    comments: Mapped[list["Comment"]] = relationship(back_populates="parent_post")
+    comments: Mapped[list["Comment"]] = relationship(back_populates="parent_post", cascade="all, delete-orphan")
 
 
 class Comment(db.Model):
@@ -80,7 +80,7 @@ class Comment(db.Model):
     parent_post: Mapped["Post"] = relationship(back_populates="comments")
 
     # Relationship with reply
-    replies: Mapped[list["Reply"]] = relationship(back_populates="comment_post")
+    replies: Mapped[list["Reply"]] = relationship(back_populates="comment_post", cascade="all, delete-orphan")
 
 
 class Reply(db.Model):
@@ -103,7 +103,6 @@ class Subscriber(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     email: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
     date_subscribed: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-
 
 
 class Newsletter(db.Model):

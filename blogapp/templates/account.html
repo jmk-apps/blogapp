@@ -14,7 +14,7 @@
 
                 {% include "flash_message.html" %}
 
-              <form action="{{ url_for('account') }}" method="post" enctype="multipart/form-data" novalidate>
+              <form action="{{ url_for('users.account') }}" method="post" enctype="multipart/form-data" novalidate>
                   {{ form.csrf_token }}
                   <legend class="border-bottom mb-4">Account Details</legend>
                   <div>
@@ -84,7 +84,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <form action="{{ url_for('delete_user', user_id=current_user.id) }}" method="post">
+          <form action="{{ url_for('users.delete_user', user_id=current_user.id) }}" method="post">
               <input class="btn btn-danger" type="submit" value="Delete">
           </form>
       </div>

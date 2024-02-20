@@ -19,24 +19,26 @@
             <div class="card-body">
 
               <h4 class="fw-bold">{{ post.subtitle }}</h4>
-              <p>{{ post.content | safe }}</p>
-                <div class="row">
-                    <div class="d-flex mt-1 justify-content-end">
-                        <a class="btn btn-sm btn-primary" href="{{ url_for('update_post', post_id=post.id) }}">Update</a>
-                        <button
-                                class="btn btn-sm btn-danger ms-2"
-                                data-bs-toggle="modal"
-                                data-bs-target="#deleteModal">
-                            Delete
-                        </button>
+              <p class="">{{ post.content | safe }}</p>
+                {% if current_user.admin %}
+                    <div class="row">
+                        <div class="d-flex mt-1 justify-content-end">
+                            <a class="btn btn-sm btn-primary" href="{{ url_for('posts.update_post', post_id=post.id) }}">Update</a>
+                            <button
+                                    class="btn btn-sm btn-danger ms-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal">
+                                Delete
+                            </button>
+                        </div>
                     </div>
-                </div>
+                {% endif %}
 
-              <hr />
+              <hr class="mt-4" />
 
               <div class="mt-4">
                 <h3 class="mb-3">Write a comment</h3>
-                  <form action="{{ url_for('show_post', post_id=post.id) }}" method="post" novalidate>
+                  <form action="{{ url_for('posts.show_post', post_id=post.id) }}" method="post" novalidate>
                     {{ form.csrf_token }}
                       <div>
                           {% if form.content.errors %}
@@ -88,7 +90,7 @@
                             <div class="collapse" id="reply{{ comment.date_posted.strftime("%f") }}">
                             <div class="card card-body border-0 mt-3">
                                 <h5 class="mb-3">Reply</h5>
-                                  <form action="{{ url_for('new_reply', comment_id=comment.id) }}" method="post">
+                                  <form action="{{ url_for('posts.new_reply', comment_id=comment.id) }}" method="post">
                                     {{ reply_form.csrf_token }}
                                       <div>
                                           {% if reply_form.content.errors %}
@@ -159,7 +161,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <form action="{{ url_for('delete_post', post_id=post.id) }}" method="post">
+          <form action="{{ url_for('posts.delete_post', post_id=post.id) }}" method="post">
               <input class="btn btn-danger" type="submit" value="Delete">
           </form>
       </div>

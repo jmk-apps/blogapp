@@ -14,7 +14,7 @@
 
               <p>Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim.</p>
 
-              <form action="{{ url_for('register') }}" method="post" novalidate>
+              <form action="{{ url_for('users.register') }}" method="post" novalidate>
                   {{ form.csrf_token }}
                   <legend class="border-bottom mb-4">Register now</legend>
                   <div class="form-group">
@@ -74,7 +74,7 @@
                   </div>
                   <div class="pt-3">
                       <small class="text-muted">
-                          Already have an account? <a class="ms-2 text-primary" style="text-decoration: none" href="#">Log in</a>
+                          Already have an account? <a class="ms-2 text-primary" style="text-decoration: none" href="{{ url_for('users.login') }}">Log in</a>
                       </small>
                   </div>
               </form>

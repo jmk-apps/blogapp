@@ -30,7 +30,7 @@
                   <p class="ms-5">{{ newsletter.newsletter_file  }}</p>
               </div>
               <div class="text-end">
-                  <a class="btn btn-info" href="{{ url_for('update_newsletter', newsletter_id=newsletter.id) }}">Update</a>
+                  <a class="btn btn-info" href="{{ url_for('newsletters.update_newsletter', newsletter_id=newsletter.id) }}">Update</a>
                   <a
                           class="btn btn-danger ms-1"
                           data-bs-toggle="modal"
@@ -63,7 +63,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <form action="{{ url_for('delete_newsletter', newsletter_id=newsletter.id) }}" method="post">
+          <form action="{{ url_for('newsletters.delete_newsletter', newsletter_id=newsletter.id) }}" method="post">
               <input class="btn btn-danger" type="submit" value="Delete">
           </form>
       </div>
@@ -82,7 +82,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <form action="{{ url_for('email_newsletter', newsletter_id=newsletter.id) }}" method="post">
+          <form action="{{ url_for('newsletters.email_newsletter', newsletter_id=newsletter.id) }}" method="post">
               <input class="btn btn-success" type="submit" value="Email">
           </form>
       </div>

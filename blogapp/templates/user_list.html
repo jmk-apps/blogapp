@@ -31,7 +31,7 @@
                               <td>{{ user.admin }}</td>
                               <td>{{ user.date_created.strftime("%d-%b-%Y") }}</td>
                               {% if current_user.id != user.id %}
-                                  <td><a class="btn btn-primary" href="{{ url_for('user_details', user_id=user.id) }}">View</a></td>
+                                  <td><a class="btn btn-primary" href="{{ url_for('users.user_details', user_id=user.id) }}">View</a></td>
                                   <td><a
                                           class="btn btn-danger"
                                           data-bs-toggle="modal"
@@ -48,7 +48,7 @@
                                                   </div>
                                                   <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                      <form action="{{ url_for('delete_user', user_id=user.id) }}" method="post">
+                                                      <form action="{{ url_for('users.delete_user', user_id=user.id) }}" method="post">
                                                           <input class="btn btn-danger" type="submit" value="Delete">
                                                       </form>
                                                   </div>
@@ -69,9 +69,9 @@
                     {% for page_num in users.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=1) %}
                     {% if page_num %}
                         {% if users.page == page_num %}
-                            <a class="btn btn-info mb-4" href="{{ url_for('user_list', page=page_num) }}">{{ page_num }}</a>
+                            <a class="btn btn-info mb-4" href="{{ url_for('users.user_list', page=page_num) }}">{{ page_num }}</a>
                         {% else %}
-                            <a class="btn btn-outline-info mb-4" href="{{ url_for('user_list', page=page_num) }}">{{ page_num }}</a>
+                            <a class="btn btn-outline-info mb-4" href="{{ url_for('users.user_list', page=page_num) }}">{{ page_num }}</a>
                         {% endif %}
                     {% else %}
                         ...

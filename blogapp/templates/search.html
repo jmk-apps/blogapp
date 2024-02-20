@@ -27,17 +27,17 @@
                           <a class="fw-bold" href="#">{{ post.author.username }}</a>
                         <small class="fs-6">{{ post.date_posted.strftime("%d-%b-%Y") }} in <a href="page-category.html">{{ post.category }}</a></small>
                       </div>
-                      <a href="{{ url_for('show_post', post_id=post.id) }}">
+                      <a href="{{ url_for('posts.show_post', post_id=post.id) }}">
                         <h4 class="card-title">{{ post.title }}</h4>
                       </a>
                     </header>
-                    <a href="{{ url_for('show_post', post_id=post.id) }}">
+                    <a href="{{ url_for('posts.show_post', post_id=post.id) }}">
                       <img class="card-img" src="{{ url_for('static', filename='post_pics/' + post.post_pic) }}" alt="" />
                     </a>
                     <div class="card-body">
                       <p class="card-text">{{ post.subtitle }} </p>
                     </div>
-                      <a href="{{ url_for('show_post', post_id=post.id) }}" class="btn btn-light btn-sm">Read more..</a>
+                      <a href="{{ url_for('posts.show_post', post_id=post.id) }}" class="btn btn-light btn-sm">Read more..</a>
                 </article><!-- /.card -->
             {% endfor %}
             <div class="row justify-content-center">
@@ -45,9 +45,9 @@
                     {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=1) %}
                         {% if page_num %}
                             {% if posts.page == page_num %}
-                                <a class="btn btn-info mb-4" href="{{ url_for('search',param=param_value, page=page_num) }}">{{ page_num }}</a>
+                                <a class="btn btn-info mb-4" href="{{ url_for('main.search',param=param_value, page=page_num) }}">{{ page_num }}</a>
                             {% else %}
-                                <a class="btn btn-outline-info mb-4" href="{{ url_for('search',param=param_value, page=page_num) }}">{{ page_num }}</a>
+                                <a class="btn btn-outline-info mb-4" href="{{ url_for('main.search',param=param_value, page=page_num) }}">{{ page_num }}</a>
                             {% endif %}
                         {% else %}
                             ...
