@@ -10,9 +10,9 @@
           <article class="card mb-4">
             <header class="card-header text-center">
               <div class="card-meta">
-                  <small class="fs-6">{{ post.date_posted.strftime("%d-%b-%Y") }} in <a href="page-category.html">{{ post.category }}</a></small>
+                  <small class="fs-6">{{ post.date_posted.strftime("%d-%b-%Y") }} in <a href="{{ url_for('main.search', param=post.category) }}">{{ post.category }}</a></small>
               </div>
-                <a href="#">{{ post.author.username }}</a>
+                <a href="{{ url_for('main.search', param=post.author.username) }}">{{ post.author.username }}</a>
                 <h1 class="card-title">{{ post.title }}</h1>
             </header>
               <img class="card-img" src="{{ url_for('static', filename='post_pics/' + post.post_pic) }}" alt="" />

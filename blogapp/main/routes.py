@@ -1,6 +1,6 @@
 from flask import render_template, Blueprint, request, redirect, url_for, flash
 from blogapp import db
-from blogapp.models import Post
+from blogapp.models import Post, User
 from blogapp import mail
 from blogapp.main.forms import SearchForm, ContactUsForm
 from flask_mail import Message
@@ -57,6 +57,7 @@ def search():
     stmt = db.select(Post).order_by(Post.date_posted.desc())
     page = request.args.get('page', 1, type=int)
     param = request.args.get("param")
+    username = request.args.get("username")
 
     search_value = request.form.get("search")
     if search_value:
@@ -65,6 +66,8 @@ def search():
         stmt = db.select(Post).filter_by(category=param).order_by(Post.date_posted.desc())
     elif param in archives:
         stmt = db.select(Post).where(Post.date_posted.icontains(param)).order_by(Post.date_posted.desc())
+    elif param:
+        stmt = db.select(Post).where(Post.author_username == param).order_by(Post.date_posted.desc())
 
     posts = db.paginate(stmt, page=page, per_page=3)
     return render_template("search.html", param_value=param, search_value=search_value, posts=posts, title="Search")

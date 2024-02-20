@@ -22,6 +22,7 @@ def new_post():
             category=form.category.data,
             content=clean_content,
             author=current_user,
+            author_username=current_user.username,
             date_posted=datetime.now(timezone.utc)
         )
         if form.post_pic.data:

@@ -1,0 +1,19 @@
+{% include "header.html" %}
+
+    <div class="container">
+
+      <div class="row">
+        <div class="col-md-9">
+            {% include "flash_message.html" %}
+                <article class="card mb-4">
+                    <div>
+                        <h1>Page Not Found (404)</h1>
+                        <p>That page does not exist.</p>
+                    </div>
+                </article><!-- /.card -->
+        </div>
+        {% include "sidebar.html" %}
+      </div>
+    </div>
+
+{% include "footer.html" %}

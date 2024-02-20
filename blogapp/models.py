@@ -60,6 +60,7 @@ class Post(db.Model):
     # Relationship with user
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
     author: Mapped["User"] = relationship(back_populates="posts")
+    author_username: Mapped[str] = mapped_column(String(30), nullable=False)
 
     # Relationship with comment
     comments: Mapped[list["Comment"]] = relationship(back_populates="parent_post", cascade="all, delete-orphan")

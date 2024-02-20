@@ -14,6 +14,8 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         # if the user does not have admin status, then return abort with 403 error
+        if current_user.is_anonymous:
+            return abort(403)
         if current_user.admin is False:
             return abort(403)
         return f(*args, **kwargs)
